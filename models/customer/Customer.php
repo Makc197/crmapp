@@ -7,8 +7,8 @@ class Customer
     public $name;
     public $birth_date;
     public $notes = '';
-
     public $phones = [];
+
     public function _construct($name, $birth_date)
     {
         $this->name = $name;

@@ -14,11 +14,11 @@ class CustomerRecord extends ActiveRecord
     public function rules()
     {
         return [
-            ['id', ' number'],
+            ['id', 'number'],
             ['name', 'required'],
             ['name', 'string', 'max' => 256],
             ['birth_date', 'date', 'format' => 'Y-m-d'],
-            ['notes', 'safе']
+            ['notes', 'safe']
         ];
     }
 }
