@@ -1,5 +1,11 @@
 <?php
-
-
-
-/* @var $this \yii\web\View */
+echo \yii\widgets\ListView::widget(
+    [
+        'options' => [
+            'class' => 'list-view',
+            'id' => 'search results'
+        ],
+        'itemView' => '_customer',
+        'dataProvider' => $records
+    ]
+);

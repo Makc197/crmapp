@@ -2,6 +2,8 @@
 
 namespace app\controllers;
 
+use Yii;
+use yii\data\ArrayDataProvider;
 use app\models\customer\Customer;
 use app\models\customer\CustomerRecord;
 use app\models\customer\Phone;
@@ -18,10 +20,14 @@ class CustomersController extends Controller
 
     private function store(Customer $customer)
     {
+        $date = new \DateTime($customer->birth_date);
+        $customer->birth_date = $date->format('d.m.Y');
+
         $customer_record = new CustomerRecord();
         $customer_record->name = $customer->name;
-        $customer_record->birth_date = $customer->birth_date->format('Y-m-d');
+        $customer_record->birth_date = $customer->birth_date;
         $customer_record->notes = $customer->notes;
+
         $customer_record->save();
 
         foreach ($customer->phones as $phone) {
@@ -37,11 +43,17 @@ class CustomersController extends Controller
         PhoneRecord $phone_record
     )
     {
+
         $name = $customer_record->name;
-        $birth_date = new \DateTime($customer_record->birth_date);
-        $customer = new Customer($name, $birth_date);
+        $customer = new Customer($name, $customer_record->birth_date);
+
         $customer->notes = $customer_record->notes;
-        $customer->phones[] = new Phone($phone_record->number);
+
+        $phones = explode(',',$phone_record->number);
+        foreach ($phones as $phone){
+            $customer->phones[] = new Phone($phone);
+        }
+
         return $customer;
     }
 
@@ -49,10 +61,58 @@ class CustomersController extends Controller
     {
         $customer = new CustomerRecord;
         $phone = new PhoneRecord;
-/*        print '</pre>';
-        var_dump($customer);
-        die;*/
+
+        if ($this->load($customer, $phone, $_POST)) {
+            echo $this->store($this->makeCustomer($customer, $phone));
+            return $this->redirect('/customers');
+        }
+
+        //$customer и $phone прошли валидацию к этому моменту
         return $this->render('add', compact('customer', 'phone'));
     }
 
+    private function load(CustomerRecord $customer, PhoneRecord $phone, array $post)
+    {
+        return $customer->load($post)
+            and $phone->load($post)
+            and $customer->validate()
+            and $phone->validate(['number']);
+    }
+
+
+    private function findRecordsByQuery()
+    {
+        $number = Yii::$app->request->get('phone_number');
+        $records = $this->getRecordsByPhoneNumber($number);
+        $dataProvider = $this->wrapintoDataProvider($records);
+        return $dataProvider;
+    }
+
+    private function wrapIntoDataProvider($data)
+    {
+        return new ArrayDataProvider(
+            [
+                'allModels' => $data,
+                'pagination' => false
+            ]
+        );
+    }
+
+    private function getRecordsByPhoneNumber($number)
+    {
+        $phone_record = PhoneRecord::findOne(['number' => $number]);
+        if (!$phone_record)
+            return [];
+
+        $customer_record = CustomerRecord::findone($phone_record->customer_id);
+        if (!$customer_record)
+            return [];
+
+        return [$this->makeCustomer($customer_record, $phone_record)];
+    }
+
+    public function actionQuery()
+    {
+        return $this->render('query');
+    }
 }
