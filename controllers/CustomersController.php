@@ -2,12 +2,12 @@
 
 namespace app\controllers;
 
-use Yii;
-use yii\data\ArrayDataProvider;
 use app\models\customer\Customer;
 use app\models\customer\CustomerRecord;
 use app\models\customer\Phone;
 use app\models\customer\PhoneRecord;
+use Yii;
+use yii\data\ArrayDataProvider;
 use yii\web\Controller;
 
 class CustomersController extends Controller
@@ -20,15 +20,18 @@ class CustomersController extends Controller
 
     private function store(Customer $customer)
     {
-        $date = new \DateTime($customer->birth_date);
-        $customer->birth_date = $date->format('d.m.Y');
+        $bthdate = new \DateTime($customer->birth_date);
+        $customer->birth_date = $bthdate->format('Y-m-d');
 
         $customer_record = new CustomerRecord();
         $customer_record->name = $customer->name;
         $customer_record->birth_date = $customer->birth_date;
         $customer_record->notes = $customer->notes;
-
+        /*      var_dump($customer_record);
+                die;*/
         $customer_record->save();
+/*        var_dump($customer_record->getErrors());
+        die;*/
 
         foreach ($customer->phones as $phone) {
             $phone_record = new PhoneRecord();
@@ -49,8 +52,8 @@ class CustomersController extends Controller
 
         $customer->notes = $customer_record->notes;
 
-        $phones = explode(',',$phone_record->number);
-        foreach ($phones as $phone){
+        $phones = explode(',', $phone_record->number);
+        foreach ($phones as $phone) {
             $customer->phones[] = new Phone($phone);
         }
 
@@ -63,7 +66,7 @@ class CustomersController extends Controller
         $phone = new PhoneRecord;
 
         if ($this->load($customer, $phone, $_POST)) {
-            echo $this->store($this->makeCustomer($customer, $phone));
+            $this->store($this->makeCustomer($customer, $phone));
             return $this->redirect('/customers');
         }
 

@@ -22,7 +22,7 @@ $I = new CRMUserSteps($scenario);
 $I->wantTo('query the customer info using his phone number');
 
 $I->amInQueryCustomersUi();
-$I->flllInPhoneFieldWithDataFrom($first_customer);
+$I->fillInPhoneFieldWithDataFrom($first_customer);
 $I->clickSearchButton();
 $I->seeIAmInListCustomersUi();
 $I->seeCustomerlnList($first_customer);

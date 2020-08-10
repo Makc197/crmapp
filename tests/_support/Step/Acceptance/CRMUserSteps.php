@@ -10,11 +10,11 @@ class CRMUserSteps extends \AcceptanceTester
         $I->amOnPage('/customers/query');
     }
 
-    function flllInPhoneFieldWithDataFrom($customer_data)
+    function fillInPhoneFieldWithDataFrom($customer_data)
     {
         $I = $this;
         $I->fillField(
-            'PhoneRecord[number]',
+            'phone_number',
             $customer_data['PhoneRecord[number]']);
     }
 
@@ -24,10 +24,16 @@ class CRMUserSteps extends \AcceptanceTester
         $I->click('Search');
     }
 
+    function seeIAmInListCustomersUi()
+    {
+        $I = $this;
+        $I->seeCurrentUrlMatches('/customers/');
+    }
+
     function seeCustomerlnList($customer_data)
     {
         $I = $this;
-        $I->see($customer_data['CustomerRecord[name] '], '#search results');
+        $I->see($customer_data['CustomerRecord[name]'], '#search_results');
     }
 
     function dontSeeCustomerlnList($customer_data)
@@ -35,6 +41,5 @@ class CRMUserSteps extends \AcceptanceTester
         $I = $this;
         $I->dontSee($customer_data['CustomerRecord[name]'],'#search_results');
     }
-
 
 }
